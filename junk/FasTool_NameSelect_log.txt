@@ -1,0 +1,34 @@
+FasTool NameSelect v1.1
+
+initial status
+	argc	3
+	C:\Users\k-ito\Documents\Visual Studio 2010\Projects\FasTool\FasTool\FasTool_NameSelect.exe
+	C:\Users\k-ito\Documents\Visual Studio 2010\Projects\FasTool\FasTool\NameList.txt
+	C:\Users\k-ito\Documents\Visual Studio 2010\Projects\FasTool\FasTool\Xylarialesà∞ê∂.fas
+
+succeed to get input file name
+	FileNum	2
+	C:\Users\k-ito\Documents\Visual Studio 2010\Projects\FasTool\FasTool\NameList.txt
+	C:\Users\k-ito\Documents\Visual Studio 2010\Projects\FasTool\FasTool\Xylarialesà∞ê∂.fas
+
+# file open mode
+open "C:\Users\k-ito\Documents\Visual Studio 2010\Projects\FasTool\FasTool\NameList.txt"...ok
+read name...ok
+	NameNum	164
+	AllNameNum	164
+open "C:\Users\k-ito\Documents\Visual Studio 2010\Projects\FasTool\FasTool\Xylarialesà∞ê∂.fas"...ok
+read fasta...ok
+	DataNum	311
+	AllDataNum	311
+# end file open mode
+
+DataNum	311
+NameNum	164
+# write result mode
+open file for result...ok
+write result...ok
+open file for fasta...ok
+write result of fasta...ok
+find 164/164
+# end write result mode
+

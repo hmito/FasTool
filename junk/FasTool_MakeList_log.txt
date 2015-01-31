@@ -1,0 +1,19 @@
+FasTool MakeList v1.0
+
+initial status
+	argc	2
+	C:\Users\k-ito\Documents\Visual Studio 2010\Projects\FasTool\FasTool\FasTool_MakeList.exe
+	C:\Users\k-ito\Documents\Visual Studio 2010\Projects\FasTool\FasTool\yan-ita.cons.fas
+
+succeed to get input file name
+	FileNum	1
+	C:\Users\k-ito\Documents\Visual Studio 2010\Projects\FasTool\FasTool\yan-ita.cons.fas
+
+make outfile...ok
+
+open C:\Users\k-ito\Documents\Visual Studio 2010\Projects\FasTool\FasTool\yan-ita.cons.fas...ok
+begin dnadist.exe
+end dnadist.exe
+begin mothur.exe
+end mothur.exe
+finish

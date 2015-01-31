@@ -1,0 +1,34 @@
+open config file...ok
+	OTU_Threshold	0.03
+FasTool Consensus v1.3
+
+initial status
+	argc	3
+	C:\Users\k-ito\Documents\Visual Studio 2010\Projects\FasTool\FasTool\FasTool_Consensus.exe
+	C:\Users\k-ito\Documents\Visual Studio 2010\Projects\FasTool\FasTool\itanb15.fas
+	C:\Users\k-ito\Documents\Visual Studio 2010\Projects\FasTool\FasTool\itanb15.list
+
+succeed to get input file name
+	FileNum	2
+	C:\Users\k-ito\Documents\Visual Studio 2010\Projects\FasTool\FasTool\itanb15.fas
+	C:\Users\k-ito\Documents\Visual Studio 2010\Projects\FasTool\FasTool\itanb15.list
+
+# file open mode
+open "C:\Users\k-ito\Documents\Visual Studio 2010\Projects\FasTool\FasTool\itanb15.fas"...ok
+read fasta...ok
+	FasDataNum	2341
+	AllFasDataNum	2341
+open "C:\Users\k-ito\Documents\Visual Studio 2010\Projects\FasTool\FasTool\itanb15.list"...ok
+read list...ok
+	OTUListNum	4
+	AllOTUListNum	4
+# end file open mode
+
+FasDataNum	2341
+OTUListNum	4
+# write result mode
+open file for result...ok
+write result...ok
+open file for fasta result...ok
+# end write result mode
+

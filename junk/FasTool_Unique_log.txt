@@ -1,0 +1,26 @@
+FasTool Unique v1.6
+
+initial status
+	argc	2
+	C:\Users\k-ito\Documents\Visual Studio 2010\Projects\FasTool\FasTool\FasTool_Unique.exe
+	C:\Users\k-ito\Documents\Visual Studio 2010\Projects\FasTool\FasTool\ita01.cons.fas
+
+succeed to get input file name
+	file num	1
+	C:\Users\k-ito\Documents\Visual Studio 2010\Projects\FasTool\FasTool\ita01.cons.fas
+
+# file open mode
+open "C:\Users\k-ito\Documents\Visual Studio 2010\Projects\FasTool\FasTool\ita01.cons.fas"...ok
+read...ok
+	DataNum	328
+	AllDataNum	328
+# end file open mode
+
+# write result mode
+open file for result...ok
+write result of fasta & fasta id...ok
+# end write result mode
+
+InputDataNum	328
+OutputDataNum	323
+Duplicate(%)	1.52439
