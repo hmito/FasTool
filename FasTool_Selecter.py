@@ -5,11 +5,12 @@
 #Single Qual File => nothing
 #Single FastaQ File => Fasta + Qual Files
 #
+#Fasta and Qual Files => FastaQ File and List of nonmatched Fasta/Qual names
+#
 #Multiple Fasta Files => Marged Fasta File
 #Multiple Qual Files => Marged Qual File
 #Multiple FastaQ Files => Marged FastaQ File
 #
-#Fasta and Qual Files => FastaQ File and List of nonmatched Fasta/Qual names
 #
 #Fasta and Convert Files => Converted Fasta File
 #Qual and Convert Files => Converted Qual File
