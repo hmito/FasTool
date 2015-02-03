@@ -151,6 +151,15 @@ def writeFastQFile(FileName, Data):
 		File.write("+\n")
 		File.write(Datum.qual+"\n")			
 	File.close()
+#marge fasta and qual
+def margeFastaQual(FDataList,QDataList):
+	FQDataList=[]
+	for FData in FDataList:
+		for QData in QDataList:
+			if(FData.name == QData.name):
+				FQDataList.append(FData.toFastQ(QData))
+				break
+	return FQDataList
 
 #make regex for getting full file name from file path.
 regexFullFileName=re.compile(r"[^/\\]+$",re.I)	
@@ -161,81 +170,138 @@ regexSeparateFileName=re.compile(r"(.+)\.([^\.]+?)$",re.I)
 Args = sys.argv
 Args.pop(0)
 
-#DataBuffer
-fastaDataList=[]
-qualDataList=[]
-fastQDataList=[]
-commandData=[]
-
+class FilePathHolder:
+	def __init__(self,path,name,type):
+		self.path=path
+		self.name=name
+		self.type=type
 #read all files in arguments
-FQFileName=""
-for Arg in Args:
-	print(Arg)
+IsMessage=0
+FileList=dict()
 
+for Arg in Args:
 	#read FullFileName from Arg
 	MatchFullFileName=regexFullFileName.search(Arg)
 	if not MatchFullFileName:
 		print("********* ERROR *********\n> fail to find this file.")
-		os.system("pause")
-		sys.exit()
+		print("> Path: "+Arg+"\n")
+		IsMessage=1
+		continue
 	
 	
 	#separate FileName from file type name
 	MatchFileName=regexSeparateFileName.match(Arg,MatchFullFileName.start(),MatchFullFileName.end())
 	if not MatchFileName:
 		print("********* ERROR *********\n> fail to find file type.")
-		os.system("pause")
-		sys.exit()
+		print("> Path: "+Arg+"\n")
+		IsMessage=1
+		continue
 	
 	#get filename and extension
 	FileName=MatchFileName.group(1)
 	FileType=MatchFileName.group(2)
 	
-	print("\tFileName: "+FileName);
-	print("\tFileType: "+FileType);
-
-	if FileType == "fasta" or FileType == "fas":
-		if len(FQFileName) == 0:
-			FQFileName = FileName + ".fq.fastq"
-		Data=readFastaFile(Arg,0)
-		print("\tNum: "+str(len(Data)))
-		fastaDataList.extend(Data)
-
-	elif FileType == "qual":
-		Data=readFastaFile(Arg,1)
-		print("\tNum: "+str(len(Data)))
-		qualDataList.extend(Data)
-
-	elif FileType == "fastq":
-		Data=readFastQFile(Arg)
-		print("\tNum: "+str(len(Data)))
-		
-		fData=list(map(lambda x:x.toFasta(),Data))
-		qData=list(map(lambda x:x.toQual(),Data))
-		
-		writeFastaFile(FileName+"."+FileType+".fasta",fData,0)
-		writeFastaFile(FileName+"."+FileType+".qual",qData,1)
-
-	else:
-		print("********* ERROR *********\n> fail to detect file type.")
-		print("> Only fasta, fas, qual, fastq or txt files can be accepted.")
-		os.system("pause")
-		sys.exit()
 	
-if len(fastaDataList)>0 and len(qualDataList)>0:
-	fqDataList=[]
-	for fData in fastaDataList:
-		for qData in qualDataList:
-			if(fData.name == qData.name):
-				fqDataList.append(fData.toFastQ(qData))
-				break
+	if FileType == "fastq":
+		Data=readFastQFile(Arg)
+		print(Arg)
+		print("\tFileName: "+FileName)
+		print("\tFileType: "+FileType)
+		print("\tNum: "+str(len(Data)))
+		
+		FData=list(map(lambda x:x.toFasta(),Data))
+		QData=list(map(lambda x:x.toQual(),Data))
+		
+		writeFastaFile(FileName+".fasta",FData,0)
+		writeFastaFile(FileName+".qual",QData,1)	
 
-	writeFastQFile(FQFileName,fqDataList)
+	elif FileType == "fasta" or FileType == "fas":
+		if FileName not in FileList:
+			FileList.update({FileName:FilePathHolder(Arg,FileName,FileType)})
+			continue
+		PreFile=FileList[FileName]
+		del FileList[FileName]
+		
+		if PreFile.type == "qual":
+			FData=readFastaFile(Arg,0)
+			QData=readFastaFile(PreFile.path,1)
+
+			print(Arg)
+			print("\tFileName: "+FileName)
+			print("\tFileType: "+FileType)
+			print("\tNum: "+str(len(FData)))
+
+			print(PreFile.path)
+			print("\tFileName: "+PreFile.name)
+			print("\tFileType: "+PreFile.type)
+			print("\tNum: "+str(len(QData)))
+
+			FQData=margeFastaQual(FData,QData)
+			if len(FQData) != len(FData) or len(FQData) != len(QData):
+				print("********* WARNING *********\n> Some fasta/qual data are not matched.")
+				print("Fasta: "+str(len(FData)))
+				print("Qual : "+str(len(QData)))
+				print("FastQ: "+str(len(FQData))+"\n")
+				IsMessage=1
+				continue
 				
-	if len(fqDataList) != len(fastaDataList) or len(fqDataList) != len(qualDataList):
-		print("********* WARNING *********\n> Some fasta/qual data are not matched.")
-		print("Fasta: "+str(len(fastaDataList)))
-		print("Qual : "+str(len(qualDataList)))
-		print("FastQ: "+str(len(fqDataList)))
-		os.system("pause")
-		sys.exit()
+			writeFastQFile(FileName+".fastq",FQData)
+
+		else:
+			print("********* WARNING *********\n> unexpected file type.")
+			print("> multiple fasta files with same name are detected.\n")
+			IsMessage=1
+			continue
+			
+	elif FileType == "qual":
+		if FileName not in FileList:
+			FileList.update({FileName:FilePathHolder(Arg,FileName,FileType)})
+			continue
+		PreFile=FileList[FileName]
+		del FileList[FileName]
+		
+		if PreFile.type == "fasta" or PreFile.type == "fas":
+			FData=readFastaFile(Arg,0)
+			QData=readFastaFile(PreFile.path,1)
+
+			print(Arg)
+			print("\tFileName: "+FileName)
+			print("\tFileType: "+FileType)
+			print("\tNum: "+str(len(FData)))
+
+			print(PreFile.path)
+			print("\tFileName: "+PreFile.name)
+			print("\tFileType: "+PreFile.type)
+			print("\tNum: "+str(len(QData)))
+
+			FQData=margeFastaQual(FData,QData)
+			if len(FQData) != len(FData) or len(FQData) != len(QData):
+				print("********* WARNING *********\n> Some fasta/qual data are not matched.")
+				print("Fasta: "+str(len(FData)))
+				print("Qual : "+str(len(QData)))
+				print("FastQ: "+str(len(FQData))+"\n")
+				IsMessage=1
+				continue
+				
+			writeFastQFile(FileName+".fastq",FQData)
+
+		else:
+			print("********* WARNING *********\n> unexpected file type.")
+			print("> multiple qual files with same name are detected.\n")
+			IsMessage=1
+			continue
+			
+	else:
+		print("********* WARNING *********\n> fail to detect file type.")
+		print("> Only fasta, fas, qual, fastq or txt files can be accepted.")
+		IsMessage=1
+
+if len(FileList) > 0:
+	print("********* WARNING *********\n> Fail to find pair file of some files.")
+	for File in FileList.values():
+		print("> "+File.path)
+	IsMessage=1
+
+if IsMessage:
+	os.system("pause")
+	sys.exit()
