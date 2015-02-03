@@ -29,15 +29,27 @@ class FastaData:
 	def __init__(self,name,data):
 		self.name=name
 		self.data=data
+	def toFastQ(self,Qual):
+		QualList=re.split(r"\s+",Qual.qual)
+		asciiQual="".join(list(map(lambda x: chr(int(x)+33),QualList)))
+		return FastQData(self.name,self.data,asciiQual)
+		
 class QualData:
 	def __init__(self,name,qual):
 		self.name=name
 		self.qual=qual
+		
 class FastQData:
 	def __init__(self,name,data,qual):
 		self.name=name
 		self.data=data
 		self.qual=qual
+	def toFasta(self):
+		return FastaData(self.name,self.data)
+	def toQual(self):
+		numQual=" ".join(map(lambda x: str(ord(x)-33), list(self.qual)))
+		return QualData(self.name,numQual)
+		
 
 #define object for command
 class Command:
@@ -65,9 +77,9 @@ def readFasta(File, IsQual=0):
 			#Add a previous data into the FastaList if we have
 			if IsName and len(Data)>0:	
 				if IsQual:	
-					FastaList.append(FastaData(Name,Data))
-				else:
 					FastaList.append(QualData(Name,Data))
+				else:
+					FastaList.append(FastaData(Name,Data))
 				#reset logs
 				Name=""
 				Data=""
@@ -85,15 +97,15 @@ def readFasta(File, IsQual=0):
 	#Add the last data into the FastaList if we have
 	if IsName and len(Data)>0:				
 		if IsQual:	
-			FastaList.append(FastaData(Name,"",Data))
+			FastaList.append(QualData(Name,Data))
 		else:
-			FastaList.append(FastaData(Name,Data,""))
+			FastaList.append(FastaData(Name,Data))
 
 	return FastaList
 
 #read fastaq file from File object
 def readFastQ(File):
-	FastaQList=[]
+	FastQList=[]
 
 	Mode=0	#0:WaitName, 1:WaitData, 2:WaitQual
 	Name=""
@@ -109,9 +121,9 @@ def readFastQ(File):
 
 		#check whether the line is for a name of fasta
 		if regexIsDataName.match(Line):
-			#Add a previous data into the FastaQList if we have
-			if Mode>0 and len(Data)>0:	
-				FastaQList.append(FastQData(Name,Data,Qual))
+			#Add a previous data into the FastQList if we have
+			if Mode>0 and len(Data)>0:
+				FastQList.append(FastQData(Name,Data,Qual))
 				#reset logs
 				Name=""
 				Data=""
@@ -133,11 +145,11 @@ def readFastQ(File):
 			elif Mode==2:
 				Qual+=Line
 
-	#Add a previous data into the FastaQList if we have
+	#Add a previous data into the FastQList if we have
 	if Mode>0 and len(Data)>0:	
-		FastaQList.append(FastaData(Name,Data,Qual))
+		FastQList.append(FastQData(Name,Data,Qual))
 
-	return FastaQList
+	return FastQList
 
 #make regex for getting full file name from file path.
 regexFullFileName=re.compile(r"[^/\\]+?$",re.I)	
@@ -149,9 +161,9 @@ Args = sys.argv
 Args.pop(0)
 
 #DataBuffer
-fastaData=[]
-qualData=[]
-FastQData=[]
+fastaDataList=[]
+qualDataList=[]
+fastQDataList=[]
 commandData=[]
 
 #read all files in arguments
@@ -188,28 +200,28 @@ for Arg in Args:
 		Fin=open(Arg,mode='r')
 		Data=readFasta(Fin,0)
 		print("\tNum: "+str(len(Data)))
-		fastaData.extend(Data)
+		fastaDataList.extend(Data)
 		Fin.close()
 
 	elif FileType == "qual":
 		Fin=open(Arg,mode='r')
-		Data=readFasta(Fin,0)
+		Data=readFasta(Fin,1)
 		print("\tNum: "+str(len(Data)))
-		qualData.extend(Data)
+		qualDataList.extend(Data)
 		Fin.close()
 
 	elif FileType == "fastq":
 		Fin=open(Arg,mode='r')
 		Data=readFastQ(Fin)
 		print("\tNum: "+str(len(Data)))
-		FastQData.extend(Data)
+		fastQDataList.extend(Data)
 		Fin.close()
 
 	elif FileType == "txt":
 		Fin=open(Arg,mode='r')
 		Data=readFastQ(Fin)
 		print("\tNum: "+str(len(Data)))
-		FastQData.extend(Data)
+		fastQDataList.extend(Data)
 		Fin.close()
 	else:
 		print("********* ERROR *********\n> fail to detect file type.")
@@ -218,8 +230,11 @@ for Arg in Args:
 		input()
 		sys.exit()
 
-	for Datum in FastQData:
-		print(Datum.name)
-		print(Datum.data)
-		print(Datum.qual)
+	for Datum in fastQDataList:
+		Ans=Datum.toQual()
+		print(Ans.name)
+		print(Ans.qual)
 		print("")
+
+import os
+os.system("pause")
