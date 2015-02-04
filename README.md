@@ -1,7 +1,7 @@
 # FasTool
 ## Aim
-One common file format for the genetic sequence data is fasta format.
-The aim of this project is to provide very simple python programs which are helpful for managing fasta files.
+One of common file formats for the genetic sequence data is fasta format.
+The aim of this project is to provide simple python programs which are helpful for managing fasta files.
 
 ## How to use
 You can use the following files just by launching by python with some run-time arguments.
@@ -34,13 +34,13 @@ If you input the text file and fasta/qual/fastq files, the sequence data whose n
 For example, let's consider a foo.fasta, which is like the folloing.
 ```
 >Seq1
-ATATGAATCTTTTH
+ATATGAATCTTTT
 >Seq2
-ATATGAAACTTTTH
+ATATGAAACTTT
 >Seq3
-ATATGTTACTTTTH
+ATATGTTACTTTT
 >Seq4
-ATATGAACTTTTH
+ATATGAACTTTT
 ```
 Let's make bar.txt like the following.
 ```
@@ -50,7 +50,7 @@ Seq3
 Then, if you input foo.fasta and bar.txt simultaniously into Selector, Selector will be output foo.bar.fasta, which will be written as
 ```
 >Seq1
-ATATGAATCTTTTH
+ATATGAATCTTTT
 >Seq3
-ATATGTTACTTTTH
+ATATGTTACTTTT
 ```
