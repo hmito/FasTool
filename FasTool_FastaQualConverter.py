@@ -162,7 +162,7 @@ def margeFastaQual(FDataList,QDataList):
 	return FQDataList
 
 #make regex for getting full file name from file path.
-regexFullFileName=re.compile(r"[^/\\]+$",re.I)	
+regexFullFileName=re.compile(r"(.+)([/\\])([^/\\]+)$",re.I)	
 #make regex for separate file name and file extension from full file name.
 regexSeparateFileName=re.compile(r"(.+)\.([^\.]+?)$",re.I)
 
@@ -188,9 +188,10 @@ for Arg in Args:
 		IsMessage=1
 		continue
 	
+	FilePath=MatchFullFileName.group(1)+MatchFullFileName.group(2)
 	
 	#separate FileName from file type name
-	MatchFileName=regexSeparateFileName.match(Arg,MatchFullFileName.start(),MatchFullFileName.end())
+	MatchFileName=regexSeparateFileName.match(MatchFullFileName.group(3))
 	if not MatchFileName:
 		print("********* ERROR *********\n> fail to find file type.")
 		print("> Path: "+Arg+"\n")
@@ -200,7 +201,6 @@ for Arg in Args:
 	#get filename and extension
 	FileName=MatchFileName.group(1)
 	FileType=MatchFileName.group(2)
-	
 	
 	if FileType == "fastq":
 		Data=readFastQFile(Arg)
@@ -212,19 +212,19 @@ for Arg in Args:
 		FData=list(map(lambda x:x.toFasta(),Data))
 		QData=list(map(lambda x:x.toQual(),Data))
 		
-		writeFastaFile(FileName+".fasta",FData,0)
-		writeFastaFile(FileName+".qual",QData,1)	
+		writeFastaFile(FilePath+FileName+".fasta",FData,0)
+		writeFastaFile(FilePath+FileName+".qual",QData,1)	
 
 	elif FileType == "fasta" or FileType == "fas":
 		if FileName not in FileList:
-			FileList.update({FileName:FilePathHolder(Arg,FileName,FileType)})
+			FileList.update({FileName:FilePathHolder(FilePath,FileName,FileType)})
 			continue
 		PreFile=FileList[FileName]
 		del FileList[FileName]
 		
 		if PreFile.type == "qual":
 			FData=readFastaFile(Arg,0)
-			QData=readFastaFile(PreFile.path,1)
+			QData=readFastaFile(PreFile.path+PreFile.name+"."+PreFile.type,1)
 
 			print(Arg)
 			print("\tFileName: "+FileName)
@@ -245,7 +245,7 @@ for Arg in Args:
 				IsMessage=1
 				continue
 				
-			writeFastQFile(FileName+".fastq",FQData)
+			writeFastQFile(FilePath+FileName+".fastq",FQData)
 
 		else:
 			print("********* WARNING *********\n> unexpected file type.")
@@ -255,14 +255,14 @@ for Arg in Args:
 			
 	elif FileType == "qual":
 		if FileName not in FileList:
-			FileList.update({FileName:FilePathHolder(Arg,FileName,FileType)})
+			FileList.update({FileName:FilePathHolder(FilePath,FileName,FileType)})
 			continue
 		PreFile=FileList[FileName]
 		del FileList[FileName]
 		
 		if PreFile.type == "fasta" or PreFile.type == "fas":
 			FData=readFastaFile(Arg,0)
-			QData=readFastaFile(PreFile.path,1)
+			QData=readFastaFile(PreFile.path+PreFile.name+"."+PreFile.type,1)
 
 			print(Arg)
 			print("\tFileName: "+FileName)
@@ -283,7 +283,7 @@ for Arg in Args:
 				IsMessage=1
 				continue
 				
-			writeFastQFile(FileName+".fastq",FQData)
+			writeFastQFile(FilePath+FileName+".fastq",FQData)
 
 		else:
 			print("********* WARNING *********\n> unexpected file type.")
