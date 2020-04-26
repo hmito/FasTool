@@ -5,7 +5,7 @@ read.gdfile_country_host_iso = function(gbfilename){
 
 	cnt = 1
 	Table = NULL
-	Line = list(accession=NULL,contry=NULL, host=NULL, isolation_source=NULL, origin=NULL)
+	Line = data.frame(accession="",country="", host="", isolation_source="", origin="")
 	origin_mode = FALSE
 	
 	#read each line
@@ -24,15 +24,57 @@ read.gdfile_country_host_iso = function(gbfilename){
 			if(length(grep("ACCESSION",str))>0){
 				Line$accession = sub("^ACCESSION\\s+([^\\s]+)$","\\1",str)
 			}else if(length(grep("/country=",str))>0){
-				Line$contry = sub(".*/country=\"(.+)\".*","\\1",str)
+				if(length(grep(".*/country=\"(.+)\".*",str))>0){
+					#single line case
+					Line$country = sub(".*/country=\"(.+)\".*","\\1",str)
+				}else{
+					Spaces = sub("(.*)/country=.*","\\1",str)
+					Line$country = sub(".*/country=\"(.+)$","\\1",str)
+					while (length(str <- readLines(fin, n = 1, warn = FALSE)) > 0){
+						str = sub(Spaces,"",str)
+						if(length(grep("\"",str))>0){
+							Line$country = paste0(Line$country," ",sub("(.*)\".*$","\\1",str))
+							break
+						}
+						Line$country = paste0(Line$country, " ",str)
+					}
+				}
 			}else if(length(grep("/host=",str))>0){
-				Line$host = sub(".*/host=\"(.+)\".*","\\1",str)
+				if(length(grep(".*/host=\"(.+)\".*",str))>0){
+					#single line case
+					Line$host = sub(".*/host=\"(.+)\".*","\\1",str)
+				}else{
+					Spaces = sub("(.*)/host=.*","\\1",str)
+					Line$host = sub(".*/host=\"(.+)$","\\1",str)
+					while (length(str <- readLines(fin, n = 1, warn = FALSE)) > 0){
+						str = sub(Spaces,"",str)
+						if(length(grep("\"",str))>0){
+							Line$host = paste0(Line$host," ",sub("(.*)\".*$","\\1",str))
+							break
+						}
+						Line$host = paste0(Line$host, " ",str)
+					}
+				}
 			}else if(length(grep("/isolation_source=",str))>0){
-				Line$isolation_source = sub(".*/isolation_source=\"(.+)\".*","\\1",str)
+				if(length(grep(".*/isolation_source=\"(.+)\".*",str))>0){
+					#single line case
+					Line$isolation_source = sub(".*/isolation_source=\"(.+)\".*","\\1",str)
+				}else{
+					Spaces = sub("(.*)/isolation_source=.*","\\1",str)
+					Line$isolation_source = sub(".*/isolation_source=\"(.+)$","\\1",str)
+					while (length(str <- readLines(fin, n = 1, warn = FALSE)) > 0){
+						str = sub(Spaces,"",str)
+						if(length(grep("\"",str))>0){
+							Line$isolation_source = paste0(Line$isolation_source," ",sub("(.*)\".*$","\\1",str))
+							break
+						}
+						Line$isolation_source = paste0(Line$isolation_source," ", str)
+					}
+				}
 			}else if(length(grep("^//",str))>0){
 				origin_mode = FALSE
 				Table = rbind(Table, Line)
-				Line = list(accession=NULL,contry=NULL, host=NULL, isolation_source=NULL, origin=NULL)
+				Line = data.frame(accession="",country="", host="", isolation_source="", origin="")
 			}else if(length(grep("^ORIGIN",str))>0){
 				origin_mode = TRUE
 			}
@@ -47,9 +89,9 @@ read.gdfile_country_host_iso = function(gbfilename){
 	#remove line names
 	rownames(Table) = NULL
 	
-	return(Table)
+	return(data.frame(Table))
 }
 
 #example
-gbfilename = "sequence-5.gb"
-ans = read.gdfile_country_host_iso("sequence-5.gb")
+gbfilename = "Cenococcum.gb"
+ans = read.gdfile_country_host_iso(gbfilename)
